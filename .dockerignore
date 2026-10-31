@@ -1,9 +1,6 @@
-data
-runtime
-node_modules
-__pycache__
-.env
-*.sqlite3
-*admin-access*
-assets-original
 .git
+**/data
+**/*.sqlite3*
+**/.env
+**/__pycache__
+**/node_modules

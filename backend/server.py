@@ -7,6 +7,7 @@ from http.server import ThreadingHTTPServer,SimpleHTTPRequestHandler
 from http.cookies import SimpleCookie
 from urllib.parse import urlparse
 ROOT=Path(__file__).resolve().parent
+STATIC=Path(os.environ.get('STYLEHUB_FRONTEND_DIR',str(ROOT.parent/'frontend'))).resolve()
 DB=Path(os.environ.get('STYLEHUB_DB_PATH',str(ROOT/'data'/'store.sqlite3')))
 LOCK=threading.Lock()
 RATE={}
@@ -42,7 +43,7 @@ CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY,order_id TEXT REFERENCE
   c.execute('CREATE UNIQUE INDEX IF NOT EXISTS unique_payment_ref ON orders(payment_ref) WHERE payment_ref IS NOT NULL')
   c.execute('CREATE TABLE IF NOT EXISTS payment_events(id TEXT PRIMARY KEY,provider TEXT,order_id TEXT,created TEXT DEFAULT CURRENT_TIMESTAMP)')
   if not c.execute('SELECT 1 FROM products LIMIT 1').fetchone():
-   js=(ROOT/'app.js').read_text(); entries=re.findall(r"\{id:(\d+),name:(\"[^\"]+\"|'[^']+'),price:(\d+),img:'([^']+)',category:'([^']+)',color:'([^']+)'\}",js)
+   js=(STATIC/'app.js').read_text(); entries=re.findall(r"\{id:(\d+),name:(\"[^\"]+\"|'[^']+'),price:(\d+),img:'([^']+)',category:'([^']+)',color:'([^']+)'\}",js)
    for id,name,price,img,cat,color in entries:c.execute('INSERT INTO products(id,name,price,img,category,color) VALUES(?,?,?,?,?,?)',(int(id),name[1:-1],int(price),img,cat,color))
   if not c.execute("SELECT 1 FROM users WHERE role='admin'").fetchone():
    pw=os.environ.get('STYLEHUB_ADMIN_PASSWORD') or secrets.token_urlsafe(18)
@@ -53,7 +54,7 @@ CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY,order_id TEXT REFERENCE
   c.execute("INSERT OR IGNORE INTO settings VALUES('store_name','StyleHub')")
  os.chmod(DB,0o600)
 class Handler(SimpleHTTPRequestHandler):
- def __init__(self,*args,**kwargs):super().__init__(*args,directory=str(ROOT),**kwargs)
+ def __init__(self,*args,**kwargs):super().__init__(*args,directory=str(STATIC),**kwargs)
  def log_message(self,fmt,*args):print('%s %s'%(self.address_string(),fmt%args),flush=True)
  def end_headers(self):
   self.send_header('X-Content-Type-Options','nosniff');self.send_header('Referrer-Policy','same-origin');super().end_headers()
@@ -278,7 +279,7 @@ class Handler(SimpleHTTPRequestHandler):
     name=text('name',2,100);price=int(d.get('price',0));stock=int(d.get('stock',0));cat=text('category',2,80);im=text('img',2,50);color=text('color',1,80)
     if cat not in ['Clothes','Shoes','Gym & Fitness','Health & Beauty','Electronics','Home Essentials','Groceries']:raise ValueError('Select a valid category.')
     if price<1 or price>10000000 or stock<0 or stock>100000:raise ValueError('Enter a valid price and stock quantity.')
-    if not re.fullmatch('[a-z]+',im) or not (ROOT/'assets'/f'{im}.png').exists():raise ValueError('Choose a valid product image.')
+    if not re.fullmatch('[a-z]+',im) or not (STATIC/'assets'/f'{im}.png').exists():raise ValueError('Choose a valid product image.')
     if pid:c.execute('UPDATE products SET name=?,price=?,stock=?,category=?,img=?,color=?,active=? WHERE id=?',(name,price,stock,cat,im,color,int(bool(d.get('active',True))),pid))
     else:pid=c.execute('INSERT INTO products(name,price,stock,category,img,color,active) VALUES(?,?,?,?,?,?,?)',(name,price,stock,cat,im,color,int(bool(d.get('active',True))))).lastrowid
     return self.reply({'ok':True,'id':pid})

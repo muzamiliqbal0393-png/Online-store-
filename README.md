@@ -5,7 +5,7 @@ A responsive 12-screen store matching the supplied navy / purple / white referen
 ## Start
 
 ```sh
-cd stylehub
+cd backend
 python server.py
 ```
 
@@ -44,7 +44,7 @@ Use SQLite's backup interface (as in `backup.py`) instead of copying an open dat
 A Dockerfile and Compose file are included:
 
 ```sh
-docker compose up --build -d
+docker compose -f backend/compose.yaml up --build -d
 ```
 
 This runs on port 3000 and persists the database and first-run credential file in named Docker volumes. Retrieve the initial login with `docker compose exec stylehub cat /app/access/StyleHub-admin-access.txt`. Put this service behind an HTTPS reverse proxy before any public use. Set `COOKIE_SECURE=1` when serving exclusively through HTTPS. Never expose the database or credential file through your reverse proxy. The service binds to `0.0.0.0`; all browser API requests use relative URLs.

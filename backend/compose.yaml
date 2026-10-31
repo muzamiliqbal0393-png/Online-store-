@@ -1,6 +1,8 @@
 services:
   stylehub:
-    build: .
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
     ports:
       - "3000:3000"
     environment:
@@ -22,7 +24,7 @@ services:
       EASYPAISA_PASSWORD: "${EASYPAISA_PASSWORD:-}"
       EASYPAISA_HASH_KEY: "${EASYPAISA_HASH_KEY:-}"
     volumes:
-      - stylehub-data:/app/stylehub/data
+      - stylehub-data:/app/backend/data
       - stylehub-access:/app/access
     restart: unless-stopped
 volumes:
