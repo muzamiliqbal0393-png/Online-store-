@@ -1,0 +1,30 @@
+services:
+  stylehub:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: "3000"
+      # Enable only behind a correctly configured HTTPS proxy:
+      COOKIE_SECURE: "${COOKIE_SECURE:-0}"
+      STYLEHUB_ADMIN_EMAIL: "${STYLEHUB_ADMIN_EMAIL:-admin@stylehub.local}"
+      STYLEHUB_ADMIN_PASSWORD: "${STYLEHUB_ADMIN_PASSWORD:-}"
+      PUBLIC_BASE_URL: "${PUBLIC_BASE_URL:-}"
+      PAYMENT_MODE: "${PAYMENT_MODE:-test}"
+      STRIPE_ENABLED: "${STRIPE_ENABLED:-0}"
+      STRIPE_SECRET_KEY: "${STRIPE_SECRET_KEY:-}"
+      STRIPE_WEBHOOK_SECRET: "${STRIPE_WEBHOOK_SECRET:-}"
+      JAZZCASH_MERCHANT_ID: "${JAZZCASH_MERCHANT_ID:-}"
+      JAZZCASH_PASSWORD: "${JAZZCASH_PASSWORD:-}"
+      JAZZCASH_INTEGRITY_SALT: "${JAZZCASH_INTEGRITY_SALT:-}"
+      EASYPAISA_STORE_ID: "${EASYPAISA_STORE_ID:-}"
+      EASYPAISA_USERNAME: "${EASYPAISA_USERNAME:-}"
+      EASYPAISA_PASSWORD: "${EASYPAISA_PASSWORD:-}"
+      EASYPAISA_HASH_KEY: "${EASYPAISA_HASH_KEY:-}"
+    volumes:
+      - stylehub-data:/app/stylehub/data
+      - stylehub-access:/app/access
+    restart: unless-stopped
+volumes:
+  stylehub-data:
+  stylehub-access:

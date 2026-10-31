@@ -1,0 +1,9 @@
+data/
+runtime/
+node_modules/
+__pycache__/
+.env
+*.sqlite3
+*.sqlite3-*
+*admin-access*
+assets-original/
